@@ -986,32 +986,7 @@ footer p{font-size:11px;color:rgba(240,232,255,.2);letter-spacing:.5px}
 </div>
 </div>
 
-<!-- REVIEW PEMBELI -->
-<section style="padding:60px 20px;">
-  <h2 style="text-align:center;color:#a855f7;">
-    Review Pembeli
-  </h2>
 
-  <div style="max-width:500px;margin:20px auto;">
-    
-    <input type="text" id="nama"
-    placeholder="Nama"
-    style="width:100%;padding:10px;margin-bottom:10px;">
-
-    <textarea id="review"
-    placeholder="Tulis pengalaman belanja..."
-    style="width:100%;padding:10px;height:100px;"></textarea>
-
-    <button onclick="tambahReview()"
-    style="margin-top:10px;padding:10px 20px;background:#a855f7;color:white;border:none;">
-      Kirim Review
-    </button>
-
-  </div>
-
-  <div id="review-list"
-  style="max-width:600px;margin:auto;"></div>
-</section>
 
 <footer>
       <div class="footer-logo">FAIQSTORE ✦</div>
@@ -1484,43 +1459,6 @@ btn.addEventListener('click',async()=>{
 
 audio.volume=1;
 </script>
-
-<!-- SCRIPT REVIEW -->
-<script>
-function tambahReview() {
-
-  const nama = document.getElementById("nama").value;
-  const review = document.getElementById("review").value;
-
-  if (nama === "" || review === "") {
-    alert("Isi nama dan review dulu!");
-    return;
-  }
-
-  const reviewList = document.getElementById("review-list");
-
-  const box = document.createElement("div");
-
-  box.style.background = "rgba(168,85,247,.08)";
-  box.style.padding = "15px";
-  box.style.marginTop = "15px";
-  box.style.border = "1px solid #a855f7";
-  box.style.borderRadius = "8px";
-  box.style.color = "white";
-
-  box.innerHTML = `
-    <h4 style="color:#c084fc;">${nama}</h4>
-    <p>${review}</p>
-  `;
-
-  reviewList.prepend(box);
-
-  document.getElementById("nama").value = "";
-  document.getElementById("review").value = "";
-
-}
-</script>
-
 </body>
 </html>
 
