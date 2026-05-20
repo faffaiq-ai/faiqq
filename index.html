@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FaiqStore – Premium Lifestyle Shop</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23a855f7'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-family='Georgia,serif' font-size='40' font-weight='bold' fill='%23ffffff'%3EF%3C/text%3E%3C/svg%3E"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Cinzel:wght@400;600;700;900&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --violet:#a855f7;
+  --violet2:#c084fc;
+  --violet3:#7c3aed;
+  --pink:#ec4899;
+  --pink2:#f472b6;
+  --blue:#3b82f6;
+  --blue2:#60a5fa;
+  --teal:#14b8a6;
+  --dark:#04020d;
+  --dark2:#0a0518;
+  --text:#f0e8ff;
+  --muted:rgba(240,232,255,.45);
+  --border:rgba(168,85,247,.2);
+  --glow-v:0 0 20px rgba(168,85,247,.6), 0 0 60px rgba(168,85,247,.2);
+  --glow-p:0 0 20px rgba(236,72,153,.5), 0 0 60px rgba(236,72,153,.15);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory}
+body{
+  font-family:'Nunito', sans-serif;
+  background:var(--dark);
+  color:var(--text);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CUSTOM CURSOR ── */
+#cur{position:fixed;width:10px;height:10px;background:var(--violet2);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);box-shadow:var(--glow-v);transition:width .15s,height .15s}
+#cur-ring{position:fixed;width:34px;height:34px;border:1px solid var(--violet);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);opacity:.5;transition:all .3s}
+body:has(a:hover) #cur{width:18px;height:18px}
+body:has(a:hover) #cur-ring{width:52px;height:52px;opacity:.2;border-color:var(--pink)}
+
+/* ── CART BUTTON (NAV) ── */
+#cart-nav-btn{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(168,85,247,.1);
+  border:1px solid rgba(168,85,247,.3);
+  border-radius:3px;
+  color:var(--violet2);
+  font-family:'Rajdhani',sans-serif;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:2px;
+  padding:8px 18px;
+  cursor:pointer;
+  transition:all .25s;
+  box-shadow:0 0 12px rgba(168,85,247,.1);
+  text-transform:uppercase;
+  margin-left:auto;
+}
+#cart-nav-btn:hover{
+  background:rgba(168,85,247,.18);
+  box-shadow:var(--glow-v);
+  transform:translateY(-2px);
+}
+#cart-badge{
+  position:absolute;
+  top:-8px;right:-8px;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--pink),var(--violet));
+  color:#fff;
+  font-size:10px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 10px rgba(236,72,153,.7);
+  transform:scale(0);
+  transition:transform .3s cubic-bezier(.68,-.55,.265,1.55);
+  font-family:'Nunito',sans-serif;
+}
+#cart-badge.show{transform:scale(1)}
+#cart-badge.pop{animation:badge-pop .4s ease}
+@keyframes badge-pop{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.5)}
+  70%{transform:scale(0.85)}
+  100%{transform:scale(1)}
+}
+
+/* ── CART DRAWER ── */
+#cart-overlay{
+  position:fixed;inset:0;
+  background:rgba(4,2,13,.75);
+  backdrop-filter:blur(6px);
+  z-index:9990;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s;
+}
+#cart-overlay.open{opacity:1;pointer-events:all}
+
+#cart-drawer{
+  position:fixed;
+  top:0;right:0;bottom:0;
+  width:min(440px,100vw);
+  background:linear-gradient(160deg,rgba(10,5,30,.98),rgba(4,2,13,.99));
+  border-left:1px solid rgba(168,85,247,.2);
+  z-index:9991;
+  display:flex;
+  flex-direction:column;
+  transform:translateX(100%);
+  transition:transform .42s cubic-bezier(.25,.46,.45,.94);
+  box-shadow:-10px 0 60px rgba(0,0,0,.6);
+}
+#cart-drawer.open{transform:translateX(0)}
+
+.cart-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:24px 24px 20px;
+  border-bottom:1px solid rgba(168,85,247,.12);
+  flex-shrink:0;
+}
+.cart-header h3{
+  font-family:'Cinzel',serif;
+  font-size:18px;
+  font-weight:700;
+  color:var(--violet2);
+  letter-spacing:2px;
+  animation:twinkle1 2.4s ease-in-out infinite;
+}
+.cart-header-right{display:flex;align-items:center;gap:12px}
+.cart-total-items{
+  font-size:10px;
+  color:var(--muted);
+  font-family:'Rajdhani',sans-serif;
+  letter-spacing:1.5px;
+  background:rgba(168,85,247,.08);
+  border:1px solid rgba(168,85,247,.15);
+  padding:4px 10px;
+  border-radius:20px;
+}
+#cart-close{
+  width:34px;height:34px;
+  border-radius:50%;
+  border:1px solid rgba(168,85,247,.25);
+  background:rgba(168,85,247,.06);
+  color:var(--muted);
+  font-size:16px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+#cart-close:hover{background:rgba(236,72,153,.15);border-color:var(--pink);color:var(--pink2);transform:rotate(90deg)}
+
+/* cart body */
+#cart-body{
+  flex:1;
+  overflow-y:auto;
+  padding:16px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(168,85,247,.3) transparent;
+}
+#cart-body::-webkit-scrollbar{width:4px}
+#cart-body::-webkit-scrollbar-track{background:transparent}
+#cart-body::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:2px}
+
+/* empty state */
+#cart-empty{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  height:100%;
+  padding:60px 0;
+  color:var(--muted);
+  text-align:center;
+}
+#cart-empty .empty-icon{
+  font-size:64px;
+  animation:empty-float 3s ease-in-out infinite;
+  filter:grayscale(.4);
+}
+@keyframes empty-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#cart-empty h4{font-family:'Cinzel',serif;font-size:16px;color:rgba(240,232,255,.35)}
+#cart-empty p{font-size:12px;line-height:1.7;max-width:220px}
+
+/* cart item */
+.cart-item{
+  display:grid;
+  grid-template-columns:72px 1fr auto;
+  gap:12px;
+  align-items:center;
+  padding:14px;
+  margin-bottom:10px;
+  background:rgba(168,85,247,.04);
+  border:1px solid rgba(168,85,247,.1);
+  border-radius:5px;
+  transition:all .3s;
+  animation:item-in .35s ease both;
+  position:relative;
+  overflow:hidden;
+}
+@keyframes item-in{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.cart-item::before{
+  content:'';
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:2px;
+  background:linear-gradient(to bottom,var(--violet2),var(--pink));
+  opacity:.6;
+}
+.cart-item:hover{
+  border-color:rgba(168,85,247,.25);
+  background:rgba(168,85,247,.07);
+}
+.ci-img{
+  width:72px;height:72px;
+  border-radius:4px;
+  overflow:hidden;
+  flex-shrink:0;
+  border:1px solid rgba(168,85,247,.15);
+}
+.ci-img img{width:100%;height:100%;object-fit:cover;filter:brightness(.8) saturate(.85)}
+.ci-info{min-width:0}
+.ci-cat{font-size:8px;color:var(--pink2);letter-spacing:2px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;margin-bottom:3px}
+.ci-name{font-family:'Cinzel',serif;font-size:13px;font-weight:600;line-height:1.25;margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ci-price{font-size:14px;font-weight:700;color:var(--violet2);font-family:'Rajdhani',sans-serif}
+.ci-qty-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:7px;
+}
+.ci-qty-btn{
+  width:22px;height:22px;
+  border-radius:3px;
+  border:1px solid rgba(168,85,247,.3);
+  background:rgba(168,85,247,.08);
+  color:var(--violet2);
+  font-size:13px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+  font-weight:700;
+  line-height:1;
+}
+.ci-qty-btn:hover{background:rgba(168,85,247,.2);box-shadow:0 0 8px rgba(168,85,247,.3)}
+.ci-qty-num{
+  min-width:24px;
+  text-align:center;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+}
+.ci-remove{
+  align-self:flex-start;
+  width:26px;height:26px;
+  border-radius:50%;
+  border:1px solid rgba(236,72,153,.2);
+  background:rgba(236,72,153,.04);
+  color:rgba(236,72,153,.45);
+  font-size:12px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+  flex-shrink:0;
+}
+.ci-remove:hover{background:rgba(236,72,153,.15);color:var(--pink2);border-color:var(--pink);box-shadow:0 0 10px rgba(236,72,153,.3)}
+.ci-subtotal{
+  font-size:11px;
+  color:var(--muted);
+  font-family:'Rajdhani',sans-serif;
+  white-space:nowrap;
+}
+
+/* cart footer */
+#cart-footer{
+  flex-shrink:0;
+  border-top:1px solid rgba(168,85,247,.12);
+  padding:18px 24px;
+  background:rgba(4,2,13,.6);
+}
+.cart-summary{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-bottom:16px;
+}
+.cs-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:12.5px;
+  color:var(--muted);
+}
+.cs-row.total{
+  padding-top:10px;
+  border-top:1px solid rgba(168,85,247,.12);
+  font-size:16px;
+  color:var(--text);
+  font-weight:700;
+}
+.cs-row.total span:last-child{
+  color:var(--violet2);
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px;
+  animation:twinkle1 2s ease-in-out infinite;
+}
+.cart-coupon{
+  display:flex;
+  gap:8px;
+  margin-bottom:14px;
+}
+.cart-coupon input{
+  flex:1;
+  background:rgba(168,85,247,.06);
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:3px;
+  padding:9px 14px;
+  color:var(--text);
+  font-size:11px;
+  font-family:'Nunito',sans-serif;
+  outline:none;
+  transition:border-color .2s;
+}
+.cart-coupon input::placeholder{color:rgba(240,232,255,.25)}
+.cart-coupon input:focus{border-color:rgba(168,85,247,.5)}
+.cart-coupon button{
+  padding:9px 14px;
+  background:rgba(168,85,247,.12);
+  border:1px solid rgba(168,85,247,.25);
+  border-radius:3px;
+  color:var(--violet2);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  font-family:'Rajdhani',sans-serif;
+  cursor:pointer;
+  transition:all .2s;
+  white-space:nowrap;
+}
+.cart-coupon button:hover{background:rgba(168,85,247,.22);box-shadow:var(--glow-v)}
+.coupon-msg{
+  font-size:10.5px;
+  margin-bottom:10px;
+  padding:7px 12px;
+  border-radius:3px;
+  display:none;
+}
+.coupon-msg.ok{display:block;background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.3);color:var(--teal)}
+.coupon-msg.err{display:block;background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.2);color:var(--pink2)}
+.btn-checkout{
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg,var(--violet2),var(--violet),var(--violet3));
+  border:none;
+  border-radius:3px;
+  color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:var(--glow-v);
+  transition:transform .25s,box-shadow .25s;
+  margin-bottom:8px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-checkout:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(168,85,247,.7),0 0 80px rgba(168,85,247,.2)}
+.btn-checkout:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-clear-cart{
+  width:100%;
+  padding:9px;
+  background:transparent;
+  border:1px solid rgba(236,72,153,.18);
+  border-radius:3px;
+  color:rgba(236,72,153,.45);
+  font-family:'Rajdhani',sans-serif;
+  font-size:9.5px;
+  font-weight:600;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all .25s;
+}
+.btn-clear-cart:hover{background:rgba(236,72,153,.07);border-color:var(--pink);color:var(--pink2)}
+
+/* free shipping progress */
+.free-ship-bar{
+  margin-bottom:14px;
+  padding:10px 13px;
+  background:rgba(20,184,166,.05);
+  border:1px solid rgba(20,184,166,.15);
+  border-radius:4px;
+}
+.fsb-label{font-size:10px;color:rgba(20,184,166,.8);font-family:'Rajdhani',sans-serif;letter-spacing:1px;margin-bottom:7px;display:flex;justify-content:space-between}
+.fsb-track{height:3px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden}
+.fsb-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--blue2));border-radius:2px;transition:width .6s cubic-bezier(.25,.46,.45,.94)}
+
+/* toast */
+#toast-container{
+  position:fixed;
+  bottom:90px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:99995;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  pointer-events:none;
+  align-items:center;
+}
+.toast{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  background:rgba(10,5,30,.97);
+  border:1px solid rgba(168,85,247,.35);
+  border-radius:4px;
+  padding:11px 20px;
+  font-size:12.5px;
+  color:var(--text);
+  box-shadow:0 8px 32px rgba(0,0,0,.5),var(--glow-v);
+  backdrop-filter:blur(20px);
+  white-space:nowrap;
+  animation:toast-in .4s ease both;
+  pointer-events:none;
+}
+.toast.out{animation:toast-out .35s ease both}
+.toast-icon{font-size:16px}
+@keyframes toast-in{from{opacity:0;transform:translateY(16px) scale(.92)}to{opacity:1;transform:none}}
+@keyframes toast-out{to{opacity:0;transform:translateY(-10px) scale(.94)}}
+
+/* add-to-cart btn on pcard */
+.pcard-actions{display:flex;gap:7px}
+.pcard-add{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:10px;
+  background:rgba(168,85,247,.06);
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:3px;
+  color:var(--violet2);
+  font-weight:700;
+  font-size:9.5px;
+  cursor:pointer;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-family:'Rajdhani',sans-serif;
+  transition:all .25s;
+}
+.pcard-add:hover{
+  background:linear-gradient(135deg,var(--violet),var(--violet3));
+  border-color:transparent;
+  color:#fff;
+  box-shadow:var(--glow-v);
+  transform:translateY(-2px);
+}
+.pcard-add.added{
+  background:linear-gradient(135deg,var(--teal),#0e9387);
+  border-color:transparent;
+  color:#fff;
+}
+.pcard-buy2{
+  width:40px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(236,72,153,.06);
+  border:1px solid rgba(236,72,153,.2);
+  border-radius:3px;
+  color:var(--pink2);
+  font-size:14px;
+  cursor:pointer;
+  transition:all .25s;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.pcard-buy2:hover{background:rgba(236,72,153,.15);border-color:var(--pink);box-shadow:var(--glow-p)}
+
+/* in-cart indicator on card */
+.pcard-in-cart{
+  position:absolute;
+  top:12px;right:12px;
+  background:linear-gradient(135deg,var(--teal),#0e9387);
+  color:#fff;
+  font-size:8px;
+  font-weight:700;
+  font-family:'Rajdhani',sans-serif;
+  letter-spacing:1.5px;
+  padding:3px 8px;
+  border-radius:2px;
+  opacity:0;
+  transform:translateY(-6px);
+  transition:all .3s;
+  pointer-events:none;
+  box-shadow:0 0 12px rgba(20,184,166,.5);
+}
+.pcard-in-cart.show{opacity:1;transform:translateY(0)}
+
+/* ── MUSIC PANEL ── */
+#music-panel{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#music-btn{width:52px;height:52px;border-radius:50%;border:1px solid var(--violet);cursor:pointer;background:rgba(168,85,247,.1);backdrop-filter:blur(10px);color:var(--violet2);font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:var(--glow-v);transition:transform .25s}
+#music-btn:hover{transform:scale(1.12)}
+#music-btn.playing{animation:ring-pulse 1.8s infinite}
+@keyframes ring-pulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.5)}50%{box-shadow:0 0 0 16px rgba(168,85,247,0)}}
+#music-label{background:rgba(4,2,13,.92);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;color:var(--violet2);white-space:nowrap;letter-spacing:.5px;opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;pointer-events:none}
+#music-panel:hover #music-label{opacity:1;transform:translateY(0)}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:16px 52px;transition:all .4s}
+nav.scrolled{background:rgba(4,2,13,.95);backdrop-filter:blur(24px);border-bottom:1px solid rgba(168,85,247,.15);box-shadow:0 1px 40px rgba(168,85,247,.06)}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.logo-mark{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,var(--violet2),var(--violet),var(--violet3));display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:18px;font-weight:900;color:#fff;box-shadow:var(--glow-v);animation:logo-float 3.5s ease-in-out infinite}
+@keyframes logo-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.logo-text{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;letter-spacing:3px;color:var(--violet2);text-shadow:0 0 18px rgba(168,85,247,.8)}
+.nav-links{display:flex;gap:30px;list-style:none}
+.nav-links a{color:rgba(240,232,255,.5);text-decoration:none;font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;position:relative;transition:color .2s,text-shadow .2s}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:1px;background:var(--pink);box-shadow:var(--glow-p);transform:scaleX(0);transform-origin:right;transition:transform .3s}
+.nav-links a:hover{color:var(--pink2);text-shadow:0 0 12px rgba(236,72,153,.6)}
+.nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
+.nav-right{display:flex;align-items:center;gap:20px}
+
+/* ── SLIDES ── */
+.slide{position:relative;min-height:100vh;overflow:hidden;scroll-snap-align:start}
+.slide-canvas{position:absolute;inset:0;z-index:0;pointer-events:none}
+.slide-content{position:relative;z-index:1}
+.slide::before{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px)}
+#slide1{background:radial-gradient(ellipse 130% 90% at 50% 110%,#110828 0%,#04020d 65%)}
+#slide2{background:radial-gradient(ellipse 130% 90% at 50% 110%,#0d1530 0%,#04020d 65%)}
+#slide3{background:radial-gradient(ellipse 130% 90% at 50% 110%,#1a0a20 0%,#04020d 65%)}
+
+/* ── TICKER ── */
+.ticker-wrap{overflow:hidden;background:linear-gradient(90deg,rgba(168,85,247,.9),rgba(124,58,237,.88),rgba(236,72,153,.9));padding:10px 0;position:relative;z-index:3}
+.ticker-track{display:flex;white-space:nowrap;animation:ticker 28s linear infinite;font-weight:700;font-size:11px;color:#fff;letter-spacing:.8px;font-family:'Rajdhani',sans-serif}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tk-item{margin-right:56px}
+
+/* ── TWINKLE ── */
+@keyframes twinkle1{0%,100%{opacity:1;text-shadow:0 0 10px var(--violet2),0 0 30px var(--violet),0 0 60px var(--violet3)}25%{opacity:.4;text-shadow:none}50%{opacity:.9;text-shadow:0 0 20px var(--pink),0 0 50px var(--pink2)}75%{opacity:.6;text-shadow:0 0 8px var(--violet2)}}
+@keyframes twinkle2{0%,100%{opacity:1;text-shadow:0 0 10px var(--pink2),0 0 30px var(--pink),0 0 60px var(--violet)}33%{opacity:.5;text-shadow:none}66%{opacity:.85;text-shadow:0 0 20px var(--violet2),0 0 50px var(--blue2)}}
+@keyframes twinkle3{0%,100%{opacity:1;text-shadow:0 0 10px var(--blue2),0 0 30px var(--blue),0 0 60px var(--violet3)}20%{opacity:.3;text-shadow:none}40%{opacity:1;text-shadow:0 0 25px var(--pink2),0 0 60px var(--pink)}70%{opacity:.7;text-shadow:0 0 8px var(--teal)}}
+@keyframes twinkle-slow{0%,100%{opacity:1;text-shadow:0 0 15px var(--violet2),0 0 35px var(--violet),0 0 70px rgba(168,85,247,.4)}40%{opacity:.6;text-shadow:0 0 5px var(--pink)}70%{opacity:.85;text-shadow:0 0 20px var(--pink2),0 0 40px var(--violet2)}}
+.twinkle-1{animation:twinkle1 2.1s ease-in-out infinite}
+.twinkle-2{animation:twinkle2 1.7s ease-in-out infinite}
+.twinkle-3{animation:twinkle3 2.5s ease-in-out infinite}
+.twinkle-slow{animation:twinkle-slow 3.2s ease-in-out infinite}
+
+/* ── HERO ── */
+#hero-inner{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:130px 24px 80px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(168,85,247,.35);background:rgba(168,85,247,.07);color:var(--violet2);font-size:9px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:3.5px;text-transform:uppercase;padding:8px 22px;border-radius:3px;margin-bottom:28px;animation:fade-up .8s ease both;box-shadow:0 0 20px rgba(168,85,247,.12)}
+.dot-anim{display:inline-block;animation:pd 1.4s infinite;color:var(--pink2)}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:.15}}
+.hero-h1{font-family:'Cinzel',serif;font-size:clamp(28px,6.5vw,82px);font-weight:900;line-height:1.05;letter-spacing:1px;margin-bottom:12px;animation:fade-up .9s .08s ease both}
+.hero-h1 .line1{display:block;color:var(--text);animation:twinkle3 3s ease-in-out infinite}
+.hero-h1 .line2{display:block;background:linear-gradient(90deg,var(--violet2),var(--pink),var(--blue2),var(--violet2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-size:300%;animation:shimmer 2.5s linear infinite;filter:drop-shadow(0 0 30px rgba(168,85,247,.5))}
+@keyframes shimmer{to{background-position:200% center}}
+.hero-tagline{font-family:'Cinzel',serif;font-size:clamp(14px,2vw,22px);font-weight:400;color:rgba(240,232,255,.45);margin-bottom:20px;font-style:italic;animation:fade-up .95s .15s ease both,twinkle2 2.3s ease-in-out infinite}
+.hero-sub{font-size:14px;color:var(--muted);max-width:440px;line-height:1.9;margin:0 auto 44px;animation:fade-up 1s .22s ease both}
+.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fade-up 1.05s .3s ease both}
+.btn-violet{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--violet2),var(--violet),var(--violet3));color:#fff;font-weight:700;font-size:10px;padding:14px 32px;border-radius:3px;text-decoration:none;letter-spacing:2.5px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;box-shadow:var(--glow-v);transition:transform .25s,box-shadow .25s}
+.btn-violet:hover{transform:translateY(-3px);box-shadow:0 0 40px rgba(168,85,247,.7),0 0 80px rgba(168,85,247,.2)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(236,72,153,.4);color:var(--pink2);font-weight:600;font-size:10px;font-family:'Rajdhani',sans-serif;padding:13px 32px;border-radius:3px;text-decoration:none;letter-spacing:2.5px;text-transform:uppercase;box-shadow:0 0 16px rgba(236,72,153,.08);transition:background .25s,box-shadow .25s}
+.btn-ghost:hover{background:rgba(236,72,153,.07);box-shadow:var(--glow-p)}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:rgba(168,85,247,.45);font-size:8px;letter-spacing:3px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;animation:fade-up 1.2s .5s ease both}
+.scroll-line{width:1px;height:36px;background:linear-gradient(to bottom,var(--violet2),transparent);animation:sg 2s ease-in-out infinite}
+@keyframes sg{0%,100%{transform:scaleY(1);opacity:.5}50%{transform:scaleY(1.6);opacity:1}}
+@keyframes fade-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── SECTION ── */
+.s-label{display:inline-flex;align-items:center;gap:10px;color:var(--violet2);font-size:9px;font-weight:700;font-family:'Rajdhani',sans-serif;letter-spacing:3.5px;text-transform:uppercase;margin-bottom:14px;animation:twinkle1 2.4s ease-in-out infinite}
+.s-label::before{content:'';width:20px;height:1px;background:var(--violet2);box-shadow:var(--glow-v)}
+.s-title{font-family:'Cinzel',serif;font-size:clamp(26px,4.5vw,50px);font-weight:700;line-height:1.1;margin-bottom:16px}
+.s-title em{font-style:italic;animation:twinkle2 2.1s ease-in-out infinite;display:inline-block}
+
+/* ── PRODUK ── */
+.sec-produk{padding:80px 52px 0}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:20px;max-width:1200px;margin:46px auto 0}
+.pcard{background:rgba(10,5,30,.88);border:1px solid rgba(168,85,247,.1);border-radius:5px;overflow:hidden;backdrop-filter:blur(12px);transition:transform .35s cubic-bezier(.25,.46,.45,.94),box-shadow .35s,border-color .35s;position:relative}
+.pcard:hover{transform:translateY(-10px);box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 0 1px rgba(168,85,247,.35),0 0 40px rgba(168,85,247,.1);border-color:rgba(168,85,247,.35)}
+.pcard-img{position:relative;height:196px;overflow:hidden;background:#080315}
+.pcard-img img{width:100%;height:100%;object-fit:cover;transition:transform .55s,filter .55s;filter:brightness(.72) saturate(.75)}
+.pcard:hover .pcard-img img{transform:scale(1.08);filter:brightness(.92) saturate(1.1)}
+.badge{position:absolute;top:12px;left:12px;padding:3px 10px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:'Rajdhani',sans-serif}
+.badge-hot{background:var(--pink);color:#fff;box-shadow:0 0 12px rgba(236,72,153,.5)}
+.badge-new{background:var(--teal);color:#fff;box-shadow:0 0 12px rgba(20,184,166,.4)}
+.badge-sale{background:var(--violet);color:#fff;box-shadow:var(--glow-v)}
+.badge-best{background:var(--blue);color:#fff;box-shadow:0 0 12px rgba(59,130,246,.5)}
+.pcard-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(4,2,13,.82) 0%,transparent 52%)}
+.pcard-body{padding:15px 17px 18px}
+.pcard-cat{font-size:8.5px;color:var(--pink2);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:5px;font-family:'Rajdhani',sans-serif}
+.pcard-name{font-family:'Cinzel',serif;font-size:17px;font-weight:700;margin-bottom:5px;line-height:1.2;animation:twinkle-slow 3.5s ease-in-out infinite}
+.pcard-desc{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:13px}
+.pcard-price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:13px}
+.pcard-price{font-size:18px;font-weight:700;color:var(--violet2);font-family:'Rajdhani',sans-serif;animation:twinkle1 2s ease-in-out infinite}
+.pcard-old{font-size:11px;color:rgba(240,232,255,.22);text-decoration:line-through}
+
+/* ── FEATURES ── */
+.sec-feat{padding:80px 52px 56px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:18px;max-width:980px;margin:46px auto 0}
+.feat-card{background:rgba(10,5,30,.78);border:1px solid rgba(255,255,255,.05);border-radius:5px;padding:30px 20px;text-align:center;backdrop-filter:blur(10px);transition:border-color .3s,transform .3s,background .3s,box-shadow .3s;position:relative;overflow:hidden}
+.feat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--violet2),transparent);opacity:0;transition:opacity .3s}
+.feat-card:hover{border-color:rgba(168,85,247,.28);background:rgba(168,85,247,.04);transform:translateY(-7px);box-shadow:0 18px 40px rgba(0,0,0,.4),0 0 28px rgba(168,85,247,.07)}
+.feat-card:hover::after{opacity:1}
+.feat-icon{font-size:34px;margin-bottom:14px;display:block;animation:fi var(--fd,3s) var(--fd2,0s) ease-in-out infinite}
+@keyframes fi{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.feat-title{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;margin-bottom:9px;color:var(--violet2);letter-spacing:1.5px;animation:twinkle2 2.2s ease-in-out infinite}
+.feat-desc{font-size:12px;color:var(--muted);line-height:1.7}
+
+/* ── KONTAK ── */
+.sec-kontak{padding:48px 52px 76px;text-align:center}
+.kontak-inner{max-width:580px;margin:0 auto}
+.kontak-inner p{font-size:14.5px;color:var(--muted);line-height:1.9;margin:18px 0 34px}
+.wa-cta{display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,#075e54,#128C7E);color:#fff;font-weight:700;font-size:11px;padding:15px 38px;border-radius:3px;text-decoration:none;letter-spacing:2px;text-transform:uppercase;font-family:'Rajdhani',sans-serif;box-shadow:0 6px 32px rgba(18,140,126,.35);transition:transform .25s,box-shadow .25s;animation:wa-glow 2.5s ease-in-out infinite}
+@keyframes wa-glow{0%,100%{box-shadow:0 6px 32px rgba(18,140,126,.35)}50%{box-shadow:0 6px 50px rgba(18,140,126,.65)}}
+.wa-cta:hover{transform:translateY(-4px)}
+.wa-cta svg{width:22px;height:22px;fill:#fff;flex-shrink:0}
+.kontak-info{display:flex;justify-content:center;flex-wrap:wrap;gap:11px;margin-top:32px}
+.info-pill{display:flex;align-items:center;gap:9px;background:rgba(168,85,247,.04);border:1px solid rgba(168,85,247,.15);border-radius:3px;padding:9px 18px;font-size:11.5px;color:var(--muted);backdrop-filter:blur(6px)}
+.info-pill span{font-size:15px}
+
+/* ── FOOTER ── */
+footer{position:relative;z-index:1;padding:38px 52px 28px;background:rgba(2,1,10,.97);border-top:1px solid rgba(168,85,247,.09);display:flex;flex-direction:column;align-items:center;gap:11px;text-align:center}
+.footer-logo{font-family:'Cinzel',serif;font-size:20px;font-weight:900;color:var(--violet2);letter-spacing:4px;animation:twinkle1 2.6s ease-in-out infinite}
+footer p{font-size:11px;color:rgba(240,232,255,.2);letter-spacing:.5px}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+.reveal.vis{opacity:1;transform:none}
+
+/* ── SLIDE DOTS ── */
+#slide-dots{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:800;display:flex;flex-direction:column;gap:10px}
+.sdot{width:7px;height:7px;border-radius:2px;background:rgba(168,85,247,.18);border:1px solid rgba(168,85,247,.3);cursor:pointer;transition:all .3s}
+.sdot.active{background:var(--violet2);height:22px;box-shadow:var(--glow-v)}
+
+/* ── CHECKOUT MODAL ── */
+#checkout-overlay{
+  position:fixed;inset:0;
+  background:rgba(4,2,13,.85);
+  backdrop-filter:blur(10px);
+  z-index:9995;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  opacity:0;pointer-events:none;
+  transition:opacity .35s;
+}
+#checkout-overlay.open{opacity:1;pointer-events:all}
+#checkout-modal{
+  background:linear-gradient(160deg,rgba(10,5,30,.99),rgba(4,2,13,1));
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:8px;
+  width:min(520px,100%);
+  max-height:90vh;
+  overflow-y:auto;
+  padding:32px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7),var(--glow-v);
+  animation:modal-in .4s ease both;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(168,85,247,.3) transparent;
+}
+#checkout-overlay.open #checkout-modal{animation:modal-in .4s ease both}
+@keyframes modal-in{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:none}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.modal-header h3{font-family:'Cinzel',serif;font-size:20px;color:var(--violet2);animation:twinkle1 2.4s ease-in-out infinite}
+#modal-close{width:34px;height:34px;border-radius:50%;border:1px solid rgba(168,85,247,.25);background:rgba(168,85,247,.06);color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+#modal-close:hover{background:rgba(236,72,153,.15);border-color:var(--pink);color:var(--pink2);transform:rotate(90deg)}
+.modal-section{margin-bottom:20px}
+.modal-section h4{font-family:'Rajdhani',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--violet2);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid rgba(168,85,247,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.form-group label{font-size:10px;color:var(--muted);font-family:'Rajdhani',sans-serif;letter-spacing:1.5px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{
+  background:rgba(168,85,247,.06);
+  border:1px solid rgba(168,85,247,.2);
+  border-radius:3px;
+  padding:10px 14px;
+  color:var(--text);
+  font-size:13px;
+  font-family:'Nunito',sans-serif;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+  width:100%;
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  border-color:rgba(168,85,247,.5);
+  box-shadow:0 0 12px rgba(168,85,247,.1);
+}
+.form-group select option{background:#0a0518;color:var(--text)}
+.form-group textarea{resize:vertical;min-height:80px}
+.modal-order-summary{
+  background:rgba(168,85,247,.04);
+  border:1px solid rgba(168,85,247,.12);
+  border-radius:4px;
+  padding:14px;
+  margin-bottom:20px;
+}
+.mos-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(168,85,247,.07);font-size:12px}
+.mos-item:last-child{border:none}
+.mos-name{color:var(--muted);flex:1}
+.mos-qty{color:var(--violet2);font-family:'Rajdhani',sans-serif;font-size:13px;margin:0 12px}
+.mos-price{font-weight:700;font-family:'Rajdhani',sans-serif;color:var(--text);font-size:13px}
+.modal-total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;border-top:1px solid rgba(168,85,247,.15);font-size:16px;font-weight:700}
+.modal-total-row span:last-child{color:var(--violet2);font-family:'Rajdhani',sans-serif;font-size:20px;animation:twinkle1 2s ease-in-out infinite}
+.btn-confirm-order{
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg,#075e54,#128C7E);
+  border:none;
+  border-radius:3px;
+  color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  box-shadow:0 6px 32px rgba(18,140,126,.35);
+  transition:transform .25s,box-shadow .25s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  animation:wa-glow 2.5s ease-in-out infinite;
+}
+.btn-confirm-order:hover{transform:translateY(-2px)}
+
+@media(max-width:640px){
+  nav{padding:12px 18px}.nav-links{display:none}
+  .nav-right{gap:10px}
+  .sec-produk,.sec-feat,.sec-kontak{padding:46px 16px}
+  footer{padding:30px 16px}
+  #slide-dots{display:none}
+  .form-row{grid-template-columns:1fr}
+  #cart-drawer{width:100vw}
+  #checkout-modal{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<div id="toast-container"></div>
+
+<!-- CART OVERLAY & DRAWER -->
+<div id="cart-overlay"></div>
+<div id="cart-drawer">
+  <div class="cart-header">
+    <h3>🛒 Keranjang</h3>
+    <div class="cart-header-right">
+      <span class="cart-total-items" id="cart-items-label">0 item</span>
+      <button id="cart-close">✕</button>
+    </div>
+  </div>
+  <div id="cart-body">
+    <div id="cart-empty">
+      <div class="empty-icon">🛒</div>
+      <h4>Keranjang Kosong</h4>
+      <p>Belum ada produk yang ditambahkan. Yuk mulai belanja!</p>
+    </div>
+    <div id="cart-items"></div>
+  </div>
+  <div id="cart-footer" style="display:none">
+    <div class="free-ship-bar">
+      <div class="fsb-label">
+        <span>🚚 GRATIS ONGKIR</span>
+        <span id="fsb-text">Tambah Rp50.000 lagi</span>
+      </div>
+      <div class="fsb-track"><div class="fsb-fill" id="fsb-fill" style="width:0%"></div></div>
+    </div>
+    <div class="cart-coupon">
+      <input type="text" id="coupon-input" placeholder="Kode promo (coba: FAIQ10)"/>
+      <button onclick="applyCoupon()">TERAPKAN</button>
+    </div>
+    <div class="coupon-msg" id="coupon-msg"></div>
+    <div class="cart-summary">
+      <div class="cs-row"><span>Subtotal</span><span id="cs-subtotal">Rp 0</span></div>
+      <div class="cs-row" id="cs-discount-row" style="display:none;color:var(--teal)"><span id="cs-discount-label">Diskon</span><span id="cs-discount-val">-Rp 0</span></div>
+      <div class="cs-row"><span>Ongkos Kirim</span><span id="cs-ongkir">Rp 15.000</span></div>
+      <div class="cs-row total"><span>Total</span><span id="cs-total">Rp 0</span></div>
+    </div>
+    <button class="btn-checkout" id="btn-checkout" onclick="openCheckout()">
+      <span>✦</span> CHECKOUT SEKARANG
+    </button>
+    <button class="btn-clear-cart" onclick="clearCart()">✕ Kosongkan Keranjang</button>
+  </div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div id="checkout-overlay">
+  <div id="checkout-modal">
+    <div class="modal-header">
+      <h3>✦ Form Pemesanan</h3>
+      <button id="modal-close">✕</button>
+    </div>
+    <div class="modal-section">
+      <h4>📦 Ringkasan Pesanan</h4>
+      <div class="modal-order-summary" id="modal-order-items"></div>
+      <div class="modal-total-row">
+        <span>Total Pembayaran</span>
+        <span id="modal-total-display">Rp 0</span>
+      </div>
+    </div>
+    <div class="modal-section">
+      <h4>👤 Data Pembeli</h4>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" id="f-name" placeholder="Nama kamu"/>
+        </div>
+        <div class="form-group">
+          <label>No. WhatsApp *</label>
+          <input type="tel" id="f-phone" placeholder="08xx-xxxx-xxxx"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-section">
+      <h4>🚚 Alamat Pengiriman</h4>
+      <div class="form-group">
+        <label>Alamat Lengkap *</label>
+        <textarea id="f-address" placeholder="Jalan, No. Rumah, RT/RW..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kota / Kabupaten *</label>
+          <input type="text" id="f-city" placeholder="Kota kamu"/>
+        </div>
+        <div class="form-group">
+          <label>Kode Pos</label>
+          <input type="text" id="f-zip" placeholder="55xxx"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Ekspedisi</label>
+        <select id="f-ekspedisi">
+          <option value="JNE REG">JNE REG (2-3 hari)</option>
+          <option value="JNE YES">JNE YES (1 hari)</option>
+          <option value="J&T Express">J&T Express (2-3 hari)</option>
+          <option value="SiCepat REG">SiCepat REG (2-3 hari)</option>
+          <option value="Anteraja">Anteraja (2-4 hari)</option>
+          <option value="COD">COD (Bayar di Tempat)</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-section">
+      <h4>💳 Pembayaran</h4>
+      <div class="form-group">
+        <label>Metode Pembayaran</label>
+        <select id="f-payment">
+          <option value="Transfer BCA">Transfer BCA</option>
+          <option value="Transfer BRI">Transfer BRI</option>
+          <option value="Transfer BNI">Transfer BNI</option>
+          <option value="Dana">Dana</option>
+          <option value="GoPay">GoPay</option>
+          <option value="OVO">OVO</option>
+          <option value="COD">COD (Bayar di Tempat)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Catatan (opsional)</label>
+        <textarea id="f-note" placeholder="Warna, ukuran, atau pesan spesial..."></textarea>
+      </div>
+    </div>
+    <button class="btn-confirm-order" onclick="confirmOrder()">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.122 1.523 5.86L.057 23.999l6.304-1.654A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-5.001-1.367l-.358-.214-3.724.978.994-3.632-.234-.373A9.786 9.786 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+      KONFIRMASI & KIRIM VIA WHATSAPP
+    </button>
+  </div>
+</div>
+
+<div id="music-panel">
+  <div id="music-label">🎵 Putar musik</div>
+  <button id="music-btn">🎵</button>
+</div>
+<audio id="bgmusic" loop preload="auto">
+  <source src="https://files.catbox.moe/a5p6jn.mp3" type="audio/mpeg">
+</audio>
+
+<div id="slide-dots">
+  <div class="sdot active" onclick="goSlide(0)"></div>
+  <div class="sdot" onclick="goSlide(1)"></div>
+  <div class="sdot" onclick="goSlide(2)"></div>
+</div>
+
+<nav id="navbar">
+  <a href="#slide1" class="nav-logo">
+    <div class="logo-mark">F</div>
+    <span class="logo-text twinkle-1">FAIQSTORE</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#slide1">Beranda</a></li>
+    <li><a href="#slide2">Produk</a></li>
+    <li><a href="#slide3">Keunggulan</a></li>
+    <li><a href="#slide3">Kontak</a></li>
+  </ul>
+  <div class="nav-right">
+    <button id="cart-nav-btn" onclick="toggleCart()">
+      🛒 KERANJANG
+      <span id="cart-badge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- SLIDE 1 -->
+<div class="slide" id="slide1">
+  <canvas class="slide-canvas" id="c1"></canvas>
+  <div class="slide-content">
+    <div id="hero-inner">
+      <div class="hero-eyebrow"><span class="dot-anim">✦</span> TOKO PREMIUM TERPERCAYA</div>
+      <h1 class="hero-h1">
+        <span class="line1">WELCOME TO</span>
+        <span class="line2">FAIQSTORE</span>
+      </h1>
+      <p class="hero-tagline">"Belanja Elegan, Harga Bersahabat"</p>
+      <p class="hero-sub">Temukan koleksi produk pilihan terbaik dari fashion, elektronik, hingga kebutuhan sehari-hari — semua di satu tempat.</p>
+      <div class="hero-btns">
+        <a href="#slide2" class="btn-violet">✦ JELAJAHI PRODUK</a>
+        <a href="#slide3" class="btn-ghost">▷ HUBUNGI KAMI</a>
+      </div>
+      <div class="scroll-hint"><div class="scroll-line"></div><span>SCROLL</span></div>
+    </div>
+    <div class="ticker-wrap"><div class="ticker-track" id="ticker"></div></div>
+  </div>
+</div>
+
+<!-- SLIDE 2 -->
+<div class="slide" id="slide2">
+  <canvas class="slide-canvas" id="c2"></canvas>
+  <div class="slide-content">
+    <div class="sec-produk">
+      <div style="max-width:1200px;margin:0 auto">
+        <div class="reveal">
+          <div class="s-label">KOLEKSI KAMI</div>
+          <h2 class="s-title">Produk <em>Unggulan</em> Kami</h2>
+          <p style="color:var(--muted);max-width:460px;font-size:13.5px;line-height:1.9">Setiap produk dikurasi langsung oleh tim FaiqStore untuk memastikan kualitas terbaik sampai di tanganmu.</p>
+        </div>
+        <div class="pgrid" id="product-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3 -->
+<div class="slide" id="slide3">
+  <canvas class="slide-canvas" id="c3"></canvas>
+  <div class="slide-content">
+    <div class="sec-feat">
+      <div style="max-width:980px;margin:0 auto;text-align:center">
+        <div class="reveal">
+          <div class="s-label" style="justify-content:center">MENGAPA KAMI</div>
+          <h2 class="s-title">Keunggulan <em>FaiqStore</em></h2>
+        </div>
+        <div class="feat-grid">
+          <div class="feat-card reveal" style="--fd:2.8s;--fd2:0s"><span class="feat-icon">🚀</span><div class="feat-title">PENGIRIMAN KILAT</div><p class="feat-desc">Pesanan diproses dalam 24 jam dan dikirim ke seluruh penjuru Indonesia dengan aman.</p></div>
+          <div class="feat-card reveal" style="--fd:3.2s;--fd2:.3s"><span class="feat-icon">🔒</span><div class="feat-title">TRANSAKSI AMAN</div><p class="feat-desc">Sistem pembayaran terenkripsi. Uangmu aman hingga barang benar-benar di tanganmu.</p></div>
+          <div class="feat-card reveal" style="--fd:2.6s;--fd2:.6s"><span class="feat-icon">💎</span><div class="feat-title">KUALITAS PREMIUM</div><p class="feat-desc">Kami hanya menjual produk lolos seleksi ketat. Kualitas nomor satu, harga bersahabat.</p></div>
+          <div class="feat-card reveal" style="--fd:3.5s;--fd2:.9s"><span class="feat-icon">🎁</span><div class="feat-title">PROMO TIAP MINGGU</div><p class="feat-desc">Nikmati flash sale, bundling hemat, dan hadiah menarik khusus pelanggan setia.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-kontak">
+      <div class="kontak-inner reveal">
+        <div class="s-label" style="justify-content:center">HUBUNGI KAMI</div>
+        <h2 class="s-title">Siap <em>Membantu</em> Kamu!</h2>
+        <p>Punya pertanyaan soal produk, mau nego harga, atau cek ketersediaan stok? Langsung hubungi kami via WhatsApp — kami siap melayani setiap hari!</p>
+        <a href="https://wa.me/6285142957353?text=Halo%20FaiqStore!%20Saya%20ingin%20bertanya%20tentang%20produk%20yang%20tersedia%20%F0%9F%99%8F" target="_blank" class="wa-cta">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.554 4.122 1.523 5.86L.057 23.999l6.304-1.654A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.8 9.8 0 01-5.001-1.367l-.358-.214-3.724.978.994-3.632-.234-.373A9.786 9.786 0 012.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12 17.43 21.818 12 21.818z"/></svg>
+          CHAT WHATSAPP — 085142957353
+        </a>
+        <<div class="kontak-info">
+  <div class="info-pill"><span>📍</span> Sleman, Yogyakarta</div>
+  <div class="info-pill"><span>🕐</span> Buka 08.00–21.00 Setiap Hari</div>
+  <div class="info-pill"><span>📦</span> Kirim ke Seluruh Indonesia</div>
+</div>
+</div>
+</div>
+
+<!-- REVIEW PEMBELI -->
+<section style="padding:60px 20px;">
+  <h2 style="text-align:center;color:#a855f7;">
+    Review Pembeli
+  </h2>
+
+  <div style="max-width:500px;margin:20px auto;">
+    
+    <input type="text" id="nama"
+    placeholder="Nama"
+    style="width:100%;padding:10px;margin-bottom:10px;">
+
+    <textarea id="review"
+    placeholder="Tulis pengalaman belanja..."
+    style="width:100%;padding:10px;height:100px;"></textarea>
+
+    <button onclick="tambahReview()"
+    style="margin-top:10px;padding:10px 20px;background:#a855f7;color:white;border:none;">
+      Kirim Review
+    </button>
+
+  </div>
+
+  <div id="review-list"
+  style="max-width:600px;margin:auto;"></div>
+</section>
+
+<footer>
+      <div class="footer-logo">FAIQSTORE ✦</div>
+      <p>© 2025 FaiqStore – Belanja Elegan, Harga Bersahabat. All rights reserved.</p>
+      <p>Dibuat dengan ❤️ oleh Faiq · Sleman, Yogyakarta</p>
+    </footer>
+  </div>
+</div>
+
+<script>
+/* ══ CURSOR ══ */
+const cur=document.getElementById('cur'),ring=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function a(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(a)})();
+
+/* ══ GALAXY CANVAS ══ */
+function initCanvas(id,cfg){
+  const cv=document.getElementById(id);const slide=cv.parentElement;
+  const ctx=cv.getContext('2d');let W,H;
+  function resize(){W=cv.width=slide.offsetWidth;H=cv.height=slide.offsetHeight}
+  resize();window.addEventListener('resize',()=>{resize();buildCols()});
+  let cols=[];
+  function buildCols(){cols=[];for(let x=0;x<W;x+=cfg.gap){cols.push({x,y:Math.random()*H,spd:Math.random()*(cfg.spd[1]-cfg.spd[0])+cfg.spd[0],len:Math.floor(Math.random()*14+5),a:Math.random()*.35+.06,chars:Array.from({length:20},()=>String.fromCharCode(0x30A0+Math.floor(Math.random()*96))),t:0,tr:Math.floor(Math.random()*5+3)})}}
+  buildCols();
+  function drawRain(){cols.forEach(c=>{c.t++;if(c.t>=c.tr){c.t=0;if(Math.random()<.2)c.chars[Math.floor(Math.random()*c.chars.length)]=String.fromCharCode(0x30A0+Math.floor(Math.random()*96))}for(let i=0;i<c.len;i++){const fy=(c.y-i*13+H*2)%H;const frac=1-i/c.len;const a=frac*frac*c.a;ctx.font="11px monospace";ctx.fillStyle=i===0?`rgba(${cfg.head},${Math.min(a*3.5,1)})`:`rgba(${cfg.body},${a})`;ctx.fillText(c.chars[i%c.chars.length],c.x,fy)}c.y+=c.spd;if(c.y>H+120)c.y=-c.len*13})}
+  function drawGrid(){ctx.lineWidth=1;ctx.strokeStyle=`rgba(${cfg.grid},.022)`;for(let y=0;y<H;y+=55){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}for(let x=0;x<W;x+=55){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}}
+  function drawHorizon(){const hy=H*.7;const g=ctx.createLinearGradient(0,hy-120,0,hy+120);g.addColorStop(0,'transparent');g.addColorStop(.5,`rgba(${cfg.horizon},.05)`);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(0,hy-120,W,240);ctx.strokeStyle=`rgba(${cfg.horizon},.15)`;ctx.lineWidth=.8;ctx.beginPath();ctx.moveTo(0,hy);ctx.lineTo(W,hy);ctx.stroke()}
+  const pts=Array.from({length:cfg.pts||120},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.3,vx:(Math.random()-.5)*0.22,vy:-(Math.random()*0.35+.06),a:Math.random()*.6+.15,tw:Math.random()*Math.PI*2,tws:Math.random()*.028+.006,col:cfg.ptc[Math.floor(Math.random()*cfg.ptc.length)]}));
+  function drawPts(){pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.tw+=p.tws;if(p.y<-5){p.y=H+5;p.x=Math.random()*W}if(p.x<-5)p.x=W+5;if(p.x>W+5)p.x=-5;const a=p.a*(.3+Math.sin(p.tw)*.7);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(${p.col},${a})`;ctx.fill()})}
+  const mets=Array.from({length:3},(_,i)=>{const m={spawn(){this.x=Math.random()*W*0.7;this.y=Math.random()*H*0.4;this.len=Math.random()*140+70;this.spd=Math.random()*7+4;this.life=1;this.ang=Math.PI/4.8}};m.spawn();m.life=i*.4+.1;return m});
+  function drawMets(){mets.forEach(m=>{m.x+=Math.cos(m.ang)*m.spd;m.y+=Math.sin(m.ang)*m.spd;m.life-=.012;if(m.life<=0)m.spawn();ctx.save();const g=ctx.createLinearGradient(m.x,m.y,m.x-Math.cos(m.ang)*m.len,m.y-Math.sin(m.ang)*m.len);g.addColorStop(0,`rgba(${cfg.met},${m.life*.85})`);g.addColorStop(1,`rgba(${cfg.met},0)`);ctx.strokeStyle=g;ctx.lineWidth=1.8;ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x-Math.cos(m.ang)*m.len,m.y-Math.sin(m.ang)*m.len);ctx.stroke();ctx.restore()})}
+  let gt=0;
+  function drawGlitch(){gt++;if(gt%220<4){ctx.fillStyle=`rgba(${cfg.glitch},${Math.random()*.06})`;ctx.fillRect(Math.random()*W,Math.random()*H*0.6,Math.random()*200+40,Math.random()*2+.5)}}
+  function loop(){ctx.clearRect(0,0,W,H);drawGrid();drawHorizon();drawRain();drawPts();drawMets();drawGlitch();requestAnimationFrame(loop)}
+  loop();
+}
+initCanvas('c1',{gap:38,spd:[.35,.9],head:'200,132,252',body:'147,51,234',grid:'168,85,247',horizon:'236,72,153',ptc:['168,85,247','200,132,252','236,72,153','244,114,182','96,165,250'],met:'220,160,255',glitch:'236,72,153',pts:150});
+initCanvas('c2',{gap:34,spd:[.4,1.0],head:'96,165,250',body:'59,130,246',grid:'96,165,250',horizon:'168,85,247',ptc:['96,165,250','59,130,246','168,85,247','200,132,252','20,184,166'],met:'147,210,255',glitch:'168,85,247',pts:130});
+initCanvas('c3',{gap:40,spd:[.3,.85],head:'244,114,182',body:'236,72,153',grid:'236,72,153',horizon:'168,85,247',ptc:['236,72,153','244,114,182','168,85,247','200,132,252','20,184,166'],met:'255,170,210',glitch:'168,85,247',pts:135});
+
+/* ══ NAV SCROLL + DOTS ══ */
+addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',scrollY>40);
+  ['slide1','slide2','slide3'].forEach((id,i)=>{
+    const r=document.getElementById(id).getBoundingClientRect();
+    document.querySelectorAll('.sdot')[i].classList.toggle('active',r.top<=120&&r.bottom>120);
+  });
+});
+function goSlide(i){document.getElementById(['slide1','slide2','slide3'][i]).scrollIntoView({behavior:'smooth'})}
+
+/* ══ TICKER ══ */
+const promos=['✦ GRATIS ONGKIR pembelian di atas Rp50.000','⚡ FLASH SALE — Diskon hingga 40% hari ini','✦ Beli 2 Gratis 1 untuk produk pilihan','✦ FaiqStore — Belanja Elegan, Harga Bersahabat','▷ Pengiriman ke seluruh Indonesia','✦ Produk Pilihan Terbaik Untuk Kamu'];
+const tk=document.getElementById('ticker');
+tk.innerHTML=[...promos,...promos].map(t=>`<span class="tk-item">${t}</span>`).join('');
+
+/* ══════════════════════════════════
+   CART ENGINE
+══════════════════════════════════ */
+const FREE_SHIP_MIN = 50000;
+const ONGKIR = 15000;
+const COUPONS = {
+  'FAIQ10':  { type:'percent', val:10, label:'Diskon 10%' },
+  'HEMAT20': { type:'percent', val:20, label:'Diskon 20%' },
+  'GRATIS':  { type:'flat', val:15000, label:'Gratis Ongkir' },
+};
+
+let cart = JSON.parse(localStorage.getItem('faiqstore-cart')||'[]');
+let appliedCoupon = null;
+
+/* parse harga string ke number */
+function parsePrice(str){ return parseInt(str.replace(/[^0-9]/g,''))||0 }
+
+/* format number ke Rupiah */
+function fmtRp(n){ return 'Rp '+n.toLocaleString('id-ID') }
+
+/* CRUD */
+function findCartItem(id){ return cart.findIndex(i=>i.id===id) }
+
+function addToCart(product){
+  const idx = findCartItem(product.id);
+  if(idx>-1){
+    cart[idx].qty++;
+  } else {
+    cart.push({...product, qty:1});
+  }
+  saveCart();
+  updateCartUI();
+  animateBadge();
+  showToast(`🛒 <b>${product.name}</b> ditambahkan!`);
+  updateCardIndicators();
+}
+
+function removeFromCart(id){
+  const idx = findCartItem(id);
+  if(idx>-1){
+    const name = cart[idx].name;
+    cart.splice(idx,1);
+    saveCart();
+    updateCartUI();
+    showToast(`🗑️ <b>${name}</b> dihapus dari keranjang`);
+    updateCardIndicators();
+  }
+}
+
+function changeQty(id, delta){
+  const idx = findCartItem(id);
+  if(idx>-1){
+    cart[idx].qty += delta;
+    if(cart[idx].qty <= 0){
+      removeFromCart(id);
+      return;
+    }
+    saveCart();
+    updateCartUI();
+    updateCardIndicators();
+  }
+}
+
+function clearCart(){
+  if(cart.length===0) return;
+  if(!confirm('Yakin mau mengosongkan keranjang?')) return;
+  cart=[];
+  appliedCoupon=null;
+  saveCart();
+  updateCartUI();
+  showToast('🗑️ Keranjang dikosongkan');
+  updateCardIndicators();
+}
+
+function saveCart(){
+  localStorage.setItem('faiqstore-cart', JSON.stringify(cart));
+}
+
+/* ── COUPON ── */
+function applyCoupon(){
+  const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+  const msg = document.getElementById('coupon-msg');
+  if(COUPONS[code]){
+    appliedCoupon = {code, ...COUPONS[code]};
+    msg.className='coupon-msg ok';
+    msg.textContent=`✅ Kode "${code}" berhasil! ${COUPONS[code].label}`;
+    updateCartUI();
+    showToast(`🎉 Kupon <b>${code}</b> diterapkan!`);
+  } else {
+    appliedCoupon=null;
+    msg.className='coupon-msg err';
+    msg.textContent='❌ Kode kupon tidak valid atau sudah kadaluarsa.';
+    updateCartUI();
+  }
+}
+
+/* ── CALCULATIONS ── */
+function calcCart(){
+  const subtotal = cart.reduce((s,i)=>s+parsePrice(i.price)*i.qty, 0);
+  let discount = 0;
+  let ongkir = ONGKIR;
+
+  if(appliedCoupon){
+    if(appliedCoupon.type==='percent') discount = Math.round(subtotal * appliedCoupon.val/100);
+    else if(appliedCoupon.type==='flat'){
+      if(appliedCoupon.val===15000){ ongkir=0; discount=0; }
+      else discount = appliedCoupon.val;
+    }
+  }
+
+  if(subtotal >= FREE_SHIP_MIN) ongkir=0;
+
+  const total = subtotal - discount + ongkir;
+  return {subtotal, discount, ongkir, total};
+}
+
+/* ── RENDER CART ── */
+function updateCartUI(){
+  const totalQty = cart.reduce((s,i)=>s+i.qty,0);
+  const badge = document.getElementById('cart-badge');
+  badge.textContent = totalQty;
+  badge.classList.toggle('show', totalQty>0);
+
+  document.getElementById('cart-items-label').textContent = `${totalQty} item`;
+
+  const emptyEl = document.getElementById('cart-empty');
+  const itemsEl = document.getElementById('cart-items');
+  const footerEl = document.getElementById('cart-footer');
+
+  if(cart.length===0){
+    emptyEl.style.display='flex';
+    itemsEl.innerHTML='';
+    footerEl.style.display='none';
+    return;
+  }
+
+  emptyEl.style.display='none';
+  footerEl.style.display='block';
+
+  /* render items */
+  itemsEl.innerHTML = cart.map(item=>{
+    const subtotal = parsePrice(item.price)*item.qty;
+    return `
+    <div class="cart-item" data-id="${item.id}">
+      <div class="ci-img"><img src="${item.img}" alt="${item.name}" loading="lazy"/></div>
+      <div class="ci-info">
+        <div class="ci-cat">${item.cat}</div>
+        <div class="ci-name">${item.name}</div>
+        <div class="ci-price">${item.price}</div>
+        <div class="ci-qty-row">
+          <button class="ci-qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+          <span class="ci-qty-num">${item.qty}</span>
+          <button class="ci-qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+          <span class="ci-subtotal">= ${fmtRp(subtotal)}</span>
+        </div>
+      </div>
+      <button class="ci-remove" onclick="removeFromCart('${item.id}')">✕</button>
+    </div>`;
+  }).join('');
+
+  /* calc & display summary */
+  const {subtotal, discount, ongkir, total} = calcCart();
+
+  document.getElementById('cs-subtotal').textContent = fmtRp(subtotal);
+  document.getElementById('cs-ongkir').textContent = ongkir===0 ? '🎉 GRATIS' : fmtRp(ongkir);
+
+  const discRow = document.getElementById('cs-discount-row');
+  if(discount>0){
+    discRow.style.display='flex';
+    document.getElementById('cs-discount-label').textContent = appliedCoupon ? `Kupon (${appliedCoupon.code})` : 'Diskon';
+    document.getElementById('cs-discount-val').textContent = '-'+fmtRp(discount);
+  } else {
+    discRow.style.display='none';
+  }
+
+  document.getElementById('cs-total').textContent = fmtRp(total);
+
+  /* free shipping progress */
+  const pct = Math.min((subtotal/FREE_SHIP_MIN)*100,100);
+  document.getElementById('fsb-fill').style.width = pct+'%';
+  const remain = FREE_SHIP_MIN - subtotal;
+  document.getElementById('fsb-text').textContent = remain>0
+    ? `Tambah ${fmtRp(remain)} lagi untuk GRATIS ONGKIR`
+    : '🎉 Kamu mendapat GRATIS ONGKIR!';
+}
+
+/* ── CART OPEN/CLOSE ── */
+function toggleCart(){
+  const drawer=document.getElementById('cart-drawer');
+  const overlay=document.getElementById('cart-overlay');
+  const isOpen=drawer.classList.contains('open');
+  if(isOpen){ closeCart(); } else { openCartDrawer(); }
+}
+function openCartDrawer(){
+  document.getElementById('cart-drawer').classList.add('open');
+  document.getElementById('cart-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCart(){
+  document.getElementById('cart-drawer').classList.remove('open');
+  document.getElementById('cart-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('cart-close').addEventListener('click',closeCart);
+document.getElementById('cart-overlay').addEventListener('click',closeCart);
+
+/* ── BADGE ANIMATION ── */
+function animateBadge(){
+  const b=document.getElementById('cart-badge');
+  b.classList.remove('pop');
+  void b.offsetWidth;
+  b.classList.add('pop');
+}
+
+/* ── CARD INDICATORS ── */
+function updateCardIndicators(){
+  document.querySelectorAll('.pcard').forEach(card=>{
+    const id = card.dataset.productId;
+    const inCart = cart.findIndex(i=>i.id===id)>-1;
+    const indicator = card.querySelector('.pcard-in-cart');
+    const addBtn = card.querySelector('.pcard-add');
+    if(indicator) indicator.classList.toggle('show',inCart);
+    if(addBtn){
+      if(inCart){
+        const qty = cart.find(i=>i.id===id)?.qty||0;
+        addBtn.textContent=`✓ DI KERANJANG (${qty})`;
+        addBtn.classList.add('added');
+      } else {
+        addBtn.innerHTML='+ KERANJANG';
+        addBtn.classList.remove('added');
+      }
+    }
+  });
+}
+
+/* ── TOAST ── */
+function showToast(html){
+  const tc=document.getElementById('toast-container');
+  const t=document.createElement('div');
+  t.className='toast';
+  t.innerHTML=`<span class="toast-icon"></span><span>${html}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{
+    t.classList.add('out');
+    setTimeout(()=>t.remove(),380);
+  },2800);
+}
+
+/* ══ CHECKOUT MODAL ══ */
+function openCheckout(){
+  if(cart.length===0){ showToast('⚠️ Keranjang masih kosong!'); return; }
+  closeCart();
+
+  /* render order summary */
+  const itemsHtml = cart.map(i=>
+    `<div class="mos-item">
+      <span class="mos-name">${i.name}</span>
+      <span class="mos-qty">×${i.qty}</span>
+      <span class="mos-price">${fmtRp(parsePrice(i.price)*i.qty)}</span>
+    </div>`
+  ).join('');
+
+  document.getElementById('modal-order-items').innerHTML=itemsHtml;
+  const {total}=calcCart();
+  document.getElementById('modal-total-display').textContent=fmtRp(total);
+
+  document.getElementById('checkout-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeCheckout(){
+  document.getElementById('checkout-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('modal-close').addEventListener('click',closeCheckout);
+document.getElementById('checkout-overlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('checkout-overlay')) closeCheckout();
+});
+
+/* ── CONFIRM ORDER & SEND WA ── */
+function confirmOrder(){
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const address=document.getElementById('f-address').value.trim();
+  const city=document.getElementById('f-city').value.trim();
+
+  if(!name||!phone||!address||!city){
+    showToast('⚠️ Harap lengkapi data yang wajib diisi!');
+    return;
+  }
+
+  const zip=document.getElementById('f-zip').value.trim();
+  const ekspedisi=document.getElementById('f-ekspedisi').value;
+  const payment=document.getElementById('f-payment').value;
+  const note=document.getElementById('f-note').value.trim();
+  const {subtotal,discount,ongkir,total}=calcCart();
+
+  let msg = `🛒 *PESANAN BARU — FaiqStore*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━\n\n`;
+  msg += `👤 *DATA PEMBELI*\n`;
+  msg += `Nama   : ${name}\n`;
+  msg += `WA     : ${phone}\n\n`;
+  msg += `🚚 *PENGIRIMAN*\n`;
+  msg += `Alamat : ${address}\n`;
+  msg += `Kota   : ${city}${zip?' ('+zip+')':''}\n`;
+  msg += `Ekspedisi : ${ekspedisi}\n\n`;
+  msg += `🛍️ *PRODUK DIPESAN*\n`;
+  cart.forEach((item,i)=>{
+    msg+=`${i+1}. ${item.name}\n   ${item.qty}x ${item.price} = ${fmtRp(parsePrice(item.price)*item.qty)}\n`;
+  });
+  msg+=`\n💰 *RINCIAN HARGA*\n`;
+  msg+=`Subtotal : ${fmtRp(subtotal)}\n`;
+  if(discount>0) msg+=`Diskon   : -${fmtRp(discount)}${appliedCoupon?' ('+appliedCoupon.code+')':''}\n`;
+  msg+=`Ongkir   : ${ongkir===0?'GRATIS':fmtRp(ongkir)}\n`;
+  msg+=`*TOTAL   : ${fmtRp(total)}*\n\n`;
+  msg+=`💳 Pembayaran : ${payment}\n`;
+  if(note) msg+=`📝 Catatan : ${note}\n`;
+  msg+=`\nMohon konfirmasi ketersediaan stok ya kak! 🙏`;
+
+  const waUrl=`https://wa.me/6285142957353?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl,'_blank');
+
+  /* clear cart after order */
+  setTimeout(()=>{
+    closeCheckout();
+    cart=[];
+    appliedCoupon=null;
+    saveCart();
+    updateCartUI();
+    updateCardIndicators();
+    document.getElementById('coupon-msg').className='coupon-msg';
+    document.getElementById('coupon-input').value='';
+    showToast('🎉 Pesanan berhasil dikirim ke WhatsApp!');
+  },400);
+}
+
+/* ══ PRODUCTS ══ */
+const products=[
+  {id:'p1',name:'Sneakers nike',cat:'FASHION / SEPATU',desc:'Desain minimalis modern, sol nyaman untuk pemakaian seharian penuh.',price:'Rp 185.000',old:'Rp 250.000',badge:'best',label:'TERLARIS',img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80'},
+  {id:'p2',name:'Jam Tangan Premium',cat:'AKSESORIS',desc:'Tampil elegan dan percaya diri. Cocok untuk formal maupun kasual.',price:'Rp 220.000',old:'Rp 320.000',badge:'new',label:'BARU',img:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80'},
+  {id:'p3',name:'Tas Ransel Minimalis',cat:'FASHION / TAS',desc:'Material anti air, kapasitas besar 35L, kompartemen laptop 15 inch.',price:'Rp 165.000',old:'Rp 220.000',badge:'sale',label:'SALE',img:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80'},
+  {id:'p4',name:'Earphone Wireless Pro',cat:'ELEKTRONIK',desc:'Suara jernih HD, bass kuat, baterai tahan 8 jam pemakaian.',price:'Rp 140.000',old:'Rp 195.000',badge:'hot',label:'HOT',img:'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80'},
+  {id:'p5',name:'Kaos Premium Oversize',cat:'FASHION / PAKAIAN',desc:'Bahan cotton combed 30s, adem, tidak mudah kusut. Tersedia 12 warna.',price:'Rp 79.000',old:'Rp 115.000',badge:'best',label:'FAVORIT',img:'https://images.unsplash.com/photo-1661110546797-d86cc72a2765?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p6',name:'Skincare Set Lengkap',cat:'KECANTIKAN',desc:'Paket perawatan wajah 5 langkah untuk kulit sehat bercahaya.',price:'Rp 98.000',old:'Rp 145.000',badge:'new',label:'BARU',img:'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p7',name:'LED Strip Aesthetic',cat:'DEKORASI',desc:'Lampu LED 5 meter, 16 mode warna, cocok untuk kamar gaming atau belajar.',price:'Rp 58.000',old:'Rp 85.000',badge:'sale',label:'DISKON',img:'https://images.unsplash.com/photo-1618403323851-ac3d38029495?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p8',name:'Parfum versace ekstrait de mada Eksklusif',cat:'KECANTIKAN',desc:'Aroma tahan lama khas fathan 8–12 jam, cocok pria & wanita. Botol desain elegan.',price:'Rp 92.000',old:'Rp 130.000',badge:'hot',label:'HOT',img:'https://images.unsplash.com/photo-1587017539504-67cfbddac569?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p1',name:'kucing oyen',cat:'PET',desc:'suka nyakar.',price:'Rp 1.000.000',old:'Rp 1.000.000',badge:'best',label:'NO KOMPLEN',img:'https://images.unsplash.com/photo-1726823932791-896822812f27?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p1',name:'asisten',cat:'PET',desc:'asiten imut loh ya.',price:'Rp 1.999.999.999',old:'Rp 1.999.999.999',badge:'good',label:'TERBAIK',img:'https://images.unsplash.com/photo-1668717997591-403c8ed5933f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+  {id:'p1',name:'nuclear',cat:'WEAPON',desc:'nyolong punya nya putin.',price:'Rp 100.000.000',old:'Rp 100.000.000',badge:'WARNING',label:'TERBAIK',img:'https://plus.unsplash.com/premium_photo-1740997621838-faaec5fa62d3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'},
+];
+
+const grid=document.getElementById('product-grid');
+products.forEach(p=>{
+  const waMsg=encodeURIComponent(`Halo FaiqStore! Saya tertarik dengan "${p.name}" (${p.price}). Masih tersedia? 🙏`);
+  const div=document.createElement('div');
+  div.className='pcard reveal';
+  div.dataset.productId=p.id;
+  div.innerHTML=`
+    <div class="pcard-img">
+      <span class="badge badge-${p.badge}">${p.label}</span>
+      <div class="pcard-in-cart">✓ DI KERANJANG</div>
+      <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+      <div class="pcard-overlay"></div>
+    </div>
+    <div class="pcard-body">
+      <div class="pcard-cat">${p.cat}</div>
+      <div class="pcard-name">${p.name}</div>
+      <div class="pcard-desc">${p.desc}</div>
+      <div class="pcard-price-row">
+        <span class="pcard-price">${p.price}</span>
+        <span class="pcard-old">${p.old}</span>
+      </div>
+      <div class="pcard-actions">
+        <button class="pcard-add" onclick='addToCart(${JSON.stringify(p)})'>+ KERANJANG</button>
+        <a class="pcard-buy2" href="https://wa.me/6285142957353?text=${waMsg}" target="_blank" title="Beli langsung via WA">💬</a>
+      </div>
+    </div>`;
+  grid.appendChild(div);
+});
+
+/* ── REVEAL ── */
+const ro=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('vis')})},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ── INIT ── */
+updateCartUI();
+updateCardIndicators();
+
+/* ══ MUSIC ══ */
+const audio=document.getElementById('bgmusic');
+const btn=document.getElementById('music-btn');
+const lbl=document.getElementById('music-label');
+let playing=false;
+
+btn.addEventListener('click',async()=>{
+  if(!playing){
+    try{
+      await audio.play();
+      playing=true;
+      btn.textContent='🔊';
+      btn.classList.add('playing');
+      lbl.textContent='🎵 Musik diputar';
+    }
+    catch(err){
+      lbl.textContent='❌ Gagal memutar';
+    }
+  } else {
+    audio.pause();
+    playing=false;
+    btn.textContent='🎵';
+    btn.classList.remove('playing');
+    lbl.textContent='⏸️ Musik dijeda';
+  }
+});
+
+audio.volume=1;
+</script>
+
+<!-- SCRIPT REVIEW -->
+<script>
+function tambahReview() {
+
+  const nama = document.getElementById("nama").value;
+  const review = document.getElementById("review").value;
+
+  if (nama === "" || review === "") {
+    alert("Isi nama dan review dulu!");
+    return;
+  }
+
+  const reviewList = document.getElementById("review-list");
+
+  const box = document.createElement("div");
+
+  box.style.background = "rgba(168,85,247,.08)";
+  box.style.padding = "15px";
+  box.style.marginTop = "15px";
+  box.style.border = "1px solid #a855f7";
+  box.style.borderRadius = "8px";
+  box.style.color = "white";
+
+  box.innerHTML = `
+    <h4 style="color:#c084fc;">${nama}</h4>
+    <p>${review}</p>
+  `;
+
+  reviewList.prepend(box);
+
+  document.getElementById("nama").value = "";
+  document.getElementById("review").value = "";
+
+}
+</script>
+
+</body>
+</html>
+
